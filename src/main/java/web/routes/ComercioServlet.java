@@ -14,16 +14,21 @@ public class ComercioServlet extends HttpServlet {
 
     public void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         
-        String requestURI = request.getRequestURI();
-        requestURI = requestURI.endsWith("/") ? requestURI.substring(1, requestURI.length() - 1) : requestURI.substring(1);
-        
-        if (request.getMethod().equals("POST") && request.getServletPath().equals("/comercios")) {
+        if (request.getMethod().equals("POST")) {
             ComercioController.create(request, response);
         }
-        if (request.getMethod().equals("GET") && requestURI.equals("crud_productos/comercios")) {
-            ComercioController.select(request, response);
-        } else if (request.getMethod().equals("GET") && request.getServletPath().equals("/comercios")){
-            ComercioController.selectOptions(request, response);
+        if (request.getMethod().equals("GET")) {
+            if (request.getPathInfo() == null) {
+                ComercioController.selectAll(request, response);       
+            } else {
+                ComercioController.selectByID(request, response);
+            }
+        }
+        if (request.getMethod().equals("DELETE")) {
+            ComercioController.deleteByID(request, response);
+        }
+        if (request.getMethod().equals("PUT")) {
+            ComercioController.updateByID(request, response);
         }
     }
 

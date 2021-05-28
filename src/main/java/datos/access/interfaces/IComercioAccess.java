@@ -10,8 +10,7 @@ import java.util.List;
 public interface IComercioAccess {
     List<ComercioModel> selectAll();
     ComercioModel selectById(ComercioModel comercio) throws EmptyResultSetException;
-    ComercioModel selectByName(ComercioModel comercio);
     InsertResult insertComercio(ComercioModel comercio) throws DuplicateEntryException;
-    UpdateResult deleteComercio(ComercioModel comercio);
-    UpdateResult updateComercio(ComercioModel comercio);
+    UpdateResult deleteComercio(ComercioModel comercio) throws EmptyResultSetException;
+    UpdateResult updateComercio(ComercioModel comercio) throws EmptyResultSetException;
 }

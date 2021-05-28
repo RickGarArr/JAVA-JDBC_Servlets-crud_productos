@@ -1,6 +1,9 @@
 package datos.access.result;
 
-public class InsertResult {
+import datos.interfaces.IToJSON;
+import javax.json.*;
+
+public class InsertResult implements IToJSON {
     private int affectedRows;
     private int insertedId;
     
@@ -30,5 +33,13 @@ public class InsertResult {
     @Override
     public String toString() {
         return "InsertResult{" + "affectedRows=" + affectedRows + ", insertedId=" + insertedId + '}';
+    }
+
+    @Override
+    public JsonObject toJSON() {
+        JsonObjectBuilder ob = Json.createObjectBuilder();
+        ob.add("affected_rows", this.affectedRows);
+        ob.add("inserted_id", this.insertedId);
+        return ob.build();
     }
 }

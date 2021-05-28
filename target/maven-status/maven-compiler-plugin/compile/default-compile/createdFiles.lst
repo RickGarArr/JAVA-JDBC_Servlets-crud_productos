@@ -1,6 +1,8 @@
+datos\interfaces\IToJSON.class
 helpers\response\SendMessage.class
 web\routes\ComercioServlet.class
 datos\access\ComercioAccess.class
+datos\access\interfaces\IToJSON.class
 datos\models\ProductoModel.class
 datos\access\exceptions\EmptyResultSetException.class
 helpers\validators\exceptions\InvalidParameterValueException.class
@@ -13,7 +15,6 @@ helpers\validators\ValidarPattern.class
 datos\models\CategoriaModel.class
 datos\access\exceptions\GeneralException.class
 helpers\DateHelper.class
-datos\access\interfaces\IModel.class
 datos\models\SucursalModel.class
 web\controllers\ComercioController.class
 datos\access\interfaces\IComercioAccess.class

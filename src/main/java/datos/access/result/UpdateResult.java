@@ -1,6 +1,11 @@
 package datos.access.result;
 
-public class UpdateResult {
+import datos.interfaces.IToJSON;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+
+public class UpdateResult implements IToJSON {
 
     private int affectedRows;
     private int updatedID;
@@ -32,6 +37,14 @@ public class UpdateResult {
     @Override
     public String toString() {
         return "UpdateResult{" + "affectedRows=" + affectedRows + ", updatedID=" + updatedID + '}';
+    }
+    
+    @Override
+    public JsonObject toJSON() {
+        JsonObjectBuilder ob = Json.createObjectBuilder();
+        ob.add("affected_rows", this.affectedRows);
+        ob.add("updated_id", this.updatedID);
+        return ob.build();
     }
 
 }

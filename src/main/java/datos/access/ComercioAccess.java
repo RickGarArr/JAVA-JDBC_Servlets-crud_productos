@@ -10,12 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.json.*;
 
-public class ComercioAccess implements IComercioAccess, IModel<ComercioModel> {
+public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
 
     private Connection conexionTransaccional = null;
     private static String INSERT = "INSERT INTO comercios(id_comercio, nombre) VALUES (?,?)";
-    private static String SELECT_ALL = "SELECT id_comercio, nombre FROM comercios";
-    private static String SELECT_BY_ID = "SELECT id_comercio, nombre FROM comercios WHERE id_comercio = ?";
+    private static String SELECT_ALL = "SELECT id_comercio, nombre, esta_activo FROM comercios ORDER BY id_comercio";
+    private static String SELECT_BY_ID = "SELECT id_comercio, nombre, esta_activo FROM comercios WHERE id_comercio = ?";
+    private static String DELETE_BY_ID = "DELETE FROM comercios WHERE id_comercio = ?";
+    private static String UPDATE_BY_ID = "UPDATE comercios set nombre = ?, esta_activo = ? WHERE id_comercio = ?";
 
     public ComercioAccess() {
     }
@@ -35,7 +37,11 @@ public class ComercioAccess implements IComercioAccess, IModel<ComercioModel> {
             statement = conexion.createStatement();
             resultSet = statement.executeQuery(SELECT_ALL);
             while (resultSet.next()) {
-                comercios.add(new ComercioModel(resultSet.getInt("id_comercio"), resultSet.getString("nombre")));
+                comercios.add(new ComercioModel(
+                        resultSet.getInt("id_comercio"),
+                        resultSet.getString("nombre"),
+                        resultSet.getBoolean("esta_activo")
+                ));
             }
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
@@ -60,9 +66,10 @@ public class ComercioAccess implements IComercioAccess, IModel<ComercioModel> {
             preparedStatement.setInt(1, comercio.getIdComercio());
             resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
-               comercio.setNombre(resultSet.getString("nombre"));
+                comercio.setNombre(resultSet.getString("nombre"));
+                comercio.setEstaActivo(resultSet.getBoolean("esta_activo"));
             } else {
-                throw new EmptyResultSetException("No existe comercio con ID '" + comercio.getIdComercio() +"'");
+                throw new EmptyResultSetException("No existe comercio con ID '" + comercio.getIdComercio() + "'");
             }
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
@@ -74,11 +81,6 @@ public class ComercioAccess implements IComercioAccess, IModel<ComercioModel> {
             }
         }
         return comercio;
-    }
-
-    @Override
-    public ComercioModel selectByName(ComercioModel comercio) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -115,31 +117,59 @@ public class ComercioAccess implements IComercioAccess, IModel<ComercioModel> {
     }
 
     @Override
-    public UpdateResult deleteComercio(ComercioModel comercio) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public UpdateResult deleteComercio(ComercioModel comercio) throws EmptyResultSetException {
+        Connection conexion = null;
+        PreparedStatement preparedStatement = null;
+        UpdateResult updateResult = null;
+        try {
+            conexion = this.conexionTransaccional == null ? Conexion.getConexion() : this.conexionTransaccional;
+            preparedStatement = conexion.prepareStatement(DELETE_BY_ID);
+            preparedStatement.setInt(1, comercio.getIdComercio());
+            int rows = preparedStatement.executeUpdate();
+            if (rows == 0) throw new EmptyResultSetException("No existe comercio con ID '" + comercio.getIdComercio() + "'");
+            updateResult = new UpdateResult(rows, comercio.getIdComercio());
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+        } finally {
+            Conexion.close(preparedStatement);
+            if (this.conexionTransaccional == null) {
+                Conexion.close(conexion);
+            }
+        }
+        return updateResult;
     }
 
     @Override
-    public UpdateResult updateComercio(ComercioModel comercio) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public UpdateResult updateComercio(ComercioModel comercio) throws EmptyResultSetException {
+        Connection conexion = null;
+        PreparedStatement preparedStatement = null;
+        UpdateResult updateResult = null;
+        try {
+            conexion = this.conexionTransaccional == null ? Conexion.getConexion() : this.conexionTransaccional;
+            preparedStatement = conexion.prepareStatement(UPDATE_BY_ID);
+            preparedStatement.setString(1, comercio.getNombre());
+            preparedStatement.setBoolean(2, comercio.isActivo());
+            preparedStatement.setInt(3, comercio.getIdComercio());
+            int rows = preparedStatement.executeUpdate();
+            if (rows == 0) throw new EmptyResultSetException("No existe comercio con ID '" + comercio.getIdComercio() + "'");
+            updateResult = new UpdateResult(rows, comercio.getIdComercio());
+        } catch (SQLException ex) {
+            ex.printStackTrace(System.out);
+        } finally {
+            Conexion.close(preparedStatement);
+            if (this.conexionTransaccional == null) {
+                Conexion.close(conexion);
+            }
+        }
+        return updateResult;
     }
 
     @Override
-    public JsonObject toJSONObject(ComercioModel comercio) {
-        JsonObjectBuilder ob = Json.createObjectBuilder();
-        ob.add("id", comercio.getIdComercio());
-        ob.add("nombre", comercio.getNombre());
-        return ob.build();
-    }
-
-    @Override
-    public JsonObject toJSONArray(List<ComercioModel> comercios) {
+    public JsonObject toJSONObjectArray(List<ComercioModel> comercios) {
         JsonObjectBuilder ob = Json.createObjectBuilder();
         JsonArrayBuilder ab = Json.createArrayBuilder();
         comercios.forEach(comercio -> {
-            ob.add("id", comercio.getIdComercio());
-            ob.add("nombre", comercio.getNombre());
-            ab.add(ob);
+            ab.add(comercio.toJSON());
         });
         ob.add("size", comercios.size());
         ob.add("comercios", ab.build());
