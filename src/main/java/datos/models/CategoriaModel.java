@@ -1,8 +1,10 @@
 package datos.models;
 
+import datos.interfaces.IToJSON;
 import java.util.Objects;
+import javax.json.*;
 
-public class CategoriaModel {
+public class CategoriaModel implements IToJSON{
     private int idCategoria;
     private String nombre;
     private String descripcion;
@@ -102,6 +104,16 @@ public class CategoriaModel {
     @Override
     public String toString() {
         return "CategoriaModel{" + "idCategoria=" + idCategoria + ", nombre=" + nombre + ", descripcion=" + descripcion + ", estaActiva=" + estaActiva + '}';
+    }
+
+    @Override
+    public JsonObject toJSON() {
+        JsonObjectBuilder ob = Json.createObjectBuilder();
+        ob.add("id_categoria", this.idCategoria);
+        ob.add("nombre", this.nombre);
+        ob.add("descripcion", this.descripcion);
+        ob.add("esta_activa", this.estaActiva);
+        return ob.build();
     }
         
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.json.*;
 
-public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
+public class ComercioAccess implements IAccess<ComercioModel> {
 
     private Connection conexionTransaccional = null;
     private static String INSERT = "INSERT INTO comercios(id_comercio, nombre) VALUES (?,?)";
@@ -69,7 +69,7 @@ public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
                 comercio.setNombre(resultSet.getString("nombre"));
                 comercio.setEstaActivo(resultSet.getBoolean("esta_activo"));
             } else {
-                throw new EmptyResultSetException("No existe comercio con ID '" + comercio.getIdComercio() + "'");
+                throw new EmptyResultSetException(comercio.getIdComercio());
             }
         } catch (SQLException ex) {
             ex.printStackTrace(System.out);
@@ -84,7 +84,7 @@ public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
     }
 
     @Override
-    public InsertResult insertComercio(ComercioModel comercio) throws DuplicateEntryException {
+    public InsertResult insert(ComercioModel comercio) throws DuplicateEntryException {
         Connection conexion = null;
         PreparedStatement preparedStatement = null;
         ResultSet generatedKeys = null;
@@ -117,7 +117,7 @@ public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
     }
 
     @Override
-    public UpdateResult deleteComercio(ComercioModel comercio) throws EmptyResultSetException {
+    public UpdateResult delete(ComercioModel comercio) throws EmptyResultSetException {
         Connection conexion = null;
         PreparedStatement preparedStatement = null;
         UpdateResult updateResult = null;
@@ -140,7 +140,7 @@ public class ComercioAccess implements IComercioAccess, IToJSON<ComercioModel> {
     }
 
     @Override
-    public UpdateResult updateComercio(ComercioModel comercio) throws EmptyResultSetException {
+    public UpdateResult update(ComercioModel comercio) throws EmptyResultSetException {
         Connection conexion = null;
         PreparedStatement preparedStatement = null;
         UpdateResult updateResult = null;

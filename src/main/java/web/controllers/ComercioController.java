@@ -18,7 +18,7 @@ public class ComercioController {
             Map<String, String> parameterValues = ValidarParametros.validarParametros(parametros, request);
             ComercioModel comercio = new ComercioModel(parameterValues.get("nombre"), true);
             ComercioAccess comercioAccess = new ComercioAccess();
-            SendMessage.sendObject(response, comercioAccess.insertComercio(comercio).toJSON());
+            SendMessage.sendObject(response, comercioAccess.insert(comercio).toJSON());
         } catch (NullParameterValueException | DuplicateEntryException ex) {
             SendMessage.sendErrors(response, ex.getMessage());
         }
@@ -49,7 +49,7 @@ public class ComercioController {
         try {
             Map<String, Object> urlParameterValues = ValidarParametros.validarURLParametros(expectedParams, request);
             ComercioAccess comercioAccess = new ComercioAccess();
-            UpdateResult updateResult = comercioAccess.deleteComercio(new ComercioModel((int) urlParameterValues.get("id_comercio")));
+            UpdateResult updateResult = comercioAccess.delete(new ComercioModel((int) urlParameterValues.get("id_comercio")));
             SendMessage.sendObject(response, updateResult.toJSON());
         } catch (GeneralException | InvalidParameterValueException | EmptyResultSetException ex ) {
             SendMessage.sendErrors(response, ex.getMessage());
@@ -69,7 +69,7 @@ public class ComercioController {
             if (request.getParameter("esta_activo") != null && !request.getParameter("esta_activo").trim().equals("")) {
                 comercioModel.setEstaActivo(Boolean.parseBoolean(request.getParameter("esta_activo")));
             }
-            UpdateResult updateResult = comercioAccess.updateComercio(comercioModel);
+            UpdateResult updateResult = comercioAccess.update(comercioModel);
             SendMessage.sendObject(response, updateResult.toJSON());
         } catch (GeneralException | InvalidParameterValueException | EmptyResultSetException ex ) {
             SendMessage.sendErrors(response, ex.getMessage());

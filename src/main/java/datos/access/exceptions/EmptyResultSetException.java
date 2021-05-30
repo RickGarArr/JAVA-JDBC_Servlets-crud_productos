@@ -6,4 +6,8 @@ public class EmptyResultSetException extends Exception {
         super(message);
     }
     
+    public EmptyResultSetException(int id) {
+        super("No existe comercio con ID '" + id + "'");
+    }
+    
 }
